@@ -4,7 +4,7 @@ COMPS381F - Group Project (2024)
 ## Group Information
 - Group Number: [Your Group Number]
 - Members:
-  - [Student Name] ([Student ID])
+  - [GUTIERREZ JOSEPH JAMES] (13018121)
   - [Student Name] ([Student ID])
   - [Student Name] ([Student ID])
 
