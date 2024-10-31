@@ -1,5 +1,23 @@
-HKMU_Cloud_Computing_COMPS381F
-Server Side Tech &amp; Cloud Computing
+# [Server Side Application & cloud deployment]
+COMPS381F - Group Project (2024)
 
+## Group Information
+- Group Number: [Your Group Number]
+- Members:
+  - [Student Name] ([Student ID])
+  - [Student Name] ([Student ID])
+  - [Student Name] ([Student ID])
 
-Example practices using serverside computing.
+## Project Description
+[Brief description of your project, what problem it solves, and its main features]
+
+## System Requirements
+- Node.js (v14 or above)
+- MongoDB
+- npm or yarn
+
+## Installation & Setup
+1. Clone the repository
+```bash
+git clone [your-repo-url]
+cd [project-folder]
