@@ -1,160 +1,198 @@
-//BASIC TEMPLATE BELOW:
-
-// Import required modules
 const express = require('express');
-const session = require('cookie-session');
+const session = require('express-session');
+const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
-const ejs = require('ejs');
-const bcrypt = require('bcrypt');
-const methodOverride = require('method-override');
-require('dotenv').config();
 
 const app = express();
-const port = process.env.PORT || 3000;
+const PORT = 3000;
 
-// Middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(methodOverride('_method')); // For PUT and DELETE methods in forms
-app.use(express.static('public'));
+// MongoDB URI
+const uri = "mongodb+srv://Mike_Wang:Wang090701@cluster.k8uyh.mongodb.net/groupData?retryWrites=true&w=majority&appName=Cluster0";
 
-// View engine setup
+// Set view engine to EJS
 app.set('view engine', 'ejs');
 
-// Session configuration
+// Middleware to parse request body data
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// Set static file directory
+app.use(express.static('public'));
+
+// Configure session
 app.use(session({
-    name: 'session',
-    keys: [process.env.SESSION_SECRET || 'your-secret-key'],
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+  secret: 'your_secret_key',
+  resave: false,
+  saveUninitialized: true,
+  cookie: { secure: false }
 }));
 
-// Database connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/your-database-name', {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-}).then(() => {
-    console.log('Connected to MongoDB');
-}).catch((err) => {
-    console.error('MongoDB connection error:', err);
-});
+const itemSchema = require('./models/item');
+const items = mongoose.model('items', itemSchema);
 
-// Authentication middleware
-const authenticateUser = (req, res, next) => {
-    if (req.session.userId) {
-        next();
-    } else {
-        res.redirect('/login');
-    }
-};
+const userSchema = require('./models/user');
+const users = mongoose.model('users', userSchema);
 
-// Routes
-
-// Home route
-app.get('/', (req, res) => {
-    res.render('index');
-});
-
-// Authentication routes
+// Login page route
 app.get('/login', (req, res) => {
-    res.render('login');
+  res.render('login');
 });
 
+// Handle login request
 app.post('/login', async (req, res) => {
-    // Login logic here
+  const { username, password, admin } = req.body;
+
+  try {
+    // Find user from MongoDB
+    const user = await users.findOne({ username: username });
+    
+    if (!user) {
+      return res.send('Invalid username');
+    }
+
+    // Compare plain text password directly
+    if (password === user.password) {
+      if (user.admin == false) {
+        // If password matches, create session and redirect to user homepage
+        console.log('User login');
+        req.session.userId = user._id;
+        return res.redirect('/userHome');
+      } else {
+        console.log('Admin login');
+        req.session.adminId = user._id;
+        return res.redirect('/adminHome');		
+      }
+    } else {
+      return res.send('Incorrect password');
+    }
+
+  } catch (err) {
+    console.error('Error occurred during login:', err);
+    res.status(500).send('Error occurred during login: ' + err.message);
+  }
 });
 
+// User homepage
+app.get('/userHome', (req, res) => {
+  if (!req.session.userId) {
+    return res.redirect('/login');
+  }
+  res.render('userHome');
+});
+
+// Admin homepage
+app.get('/adminHome', (req, res) => {
+  if (!req.session.adminId) {
+    return res.redirect('/login');
+  }
+  res.render('adminHome');
+});
+
+// CRUD page, accessible only to logged-in users
+app.get('/crud', (req, res) => {
+  if (!req.session.userId) {
+    return res.redirect('/login');
+  }
+  res.render('crud');
+});
+
+// Create page, accessible only to logged-in users
+app.get('/create', (req, res) => {
+  if (!req.session.userId) {
+    return res.redirect('/login');
+  }
+  res.render('create');
+});
+
+// Handle POST request to create new item
+app.post('/users/create', async (req, res) => {
+  const { name, count, singlePrice } = req.body;
+
+  try {
+    // Create new item
+    const newItem = new items({
+      name: name,
+      count: count,
+      singlePrice: singlePrice
+    });
+
+    // Save to database
+    await newItem.save();
+    res.redirect('/crud');
+    // Redirect to user creation success page
+  } catch (err) {
+    console.error('Error creating item:', err);
+    res.status(500).send("Error occurred while creating item: " + err.message);
+  }
+});
+
+// Read page, accessible only to logged-in users
+app.get('/read', async (req, res) => {
+  if (!req.session.userId) {
+    return res.redirect('/login');
+  }
+  
+  const nameText = ''; 
+  const countText = ''; 
+  const singlePriceText = ''; 
+  res.render('read', { 
+    name: nameText, 
+    count: countText, 
+    singlePrice: singlePriceText 
+  });
+});
+
+app.get('/user/read', async (req, res) => {
+  console.log('Searching');
+
+  const { query } = req.query; // Get the query parameter from the query string
+  const searchText = req.query.searchBar;
+  
+  try {
+    // Use regular expression for case-insensitive search
+    const results = await items.findOne({ name: searchText });
+    if (!results) {
+      return res.send('No such item');
+    }
+    
+    console.log(req.query.searchBar);
+    console.log(results);
+    
+    res.render('read', { 
+      name: results.name, 
+      count: results.count, 
+      singlePrice: results.singlePrice 
+    });
+    
+  } catch (error) {
+    console.error(error); // Log error message
+    res.status(500).send('Server Error');
+  }
+});
+
+// Delete page, accessible only to logged-in users
+app.get('/delete', (req, res) => {
+  if (!req.session.userId) {
+    return res.redirect('/login');
+  }
+  res.render('delete');
+});
+
+// Handle logout request
 app.get('/logout', (req, res) => {
-    req.session = null;
-    res.redirect('/');
-});
-
-// CRUD Web Routes (Protected)
-app.get('/dashboard', authenticateUser, (req, res) => {
-    res.render('dashboard');
-});
-
-// Create
-app.get('/create', authenticateUser, (req, res) => {
-    res.render('create');
-});
-
-app.post('/create', authenticateUser, async (req, res) => {
-    // Create logic here
-});
-
-// Read
-app.get('/read', authenticateUser, async (req, res) => {
-    // Read logic here
-});
-
-// Update
-app.get('/edit/:id', authenticateUser, async (req, res) => {
-    // Get item for editing
-});
-
-app.put('/update/:id', authenticateUser, async (req, res) => {
-    // Update logic here
-});
-
-// Delete
-app.delete('/delete/:id', authenticateUser, async (req, res) => {
-    // Delete logic here
-});
-
-// RESTful API Routes (No authentication required as per project specs)
-
-// CREATE - Using GET (as required)
-app.get('/api/create', async (req, res) => {
-    try {
-        // Create logic here
-        res.status(201).json({ message: 'Resource created' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
+  req.session.destroy(err => {
+    if (err) {
+      return res.redirect('/login');
     }
+    res.redirect('/login');
+  });
 });
 
-// READ - Using POST (as required)
-app.post('/api/read', async (req, res) => {
-    try {
-        // Read logic here
-        res.json({ data: 'your data' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// UPDATE - Using PUT
-app.put('/api/update/:id', async (req, res) => {
-    try {
-        // Update logic here
-        res.json({ message: 'Resource updated' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// DELETE - Using DELETE
-app.delete('/api/delete/:id', async (req, res) => {
-    try {
-        // Delete logic here
-        res.json({ message: 'Resource deleted' });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
-
-// Error handling middleware
-app.use((err, req, res, next) => {
-    console.error(err.stack);
-    res.status(500).render('error', { error: err });
-});
-
-// 404 handler
-app.use((req, res) => {
-    res.status(404).render('404');
-});
-
-// Start server
-app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
-});
+// Connect to MongoDB and start the server
+mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`Server is running on http://localhost:${PORT}/login`);
+      console.log('Mongoose Connected!');
+    });
+  })
+  .catch(err => console.log('Mongoose Connection Error:', err));
