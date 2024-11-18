@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create New User</title>
+    <title>Create New Items</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -68,17 +68,17 @@
             </div>
 			
 			<div class="form-group">
-                <label for="count">Quantity:</label>
+                <label for="count">Count:</label>
                 <input type="number" id="count" name="count" required>
             </div>
 
             <div class="form-group">
-                <label for="singlePrice">Unit Price:</label>
+                <label for="singlePrice">Single-Price:</label>
                 <input type="number" step="0.01" id="singlePrice" name="singlePrice" required>
             </div>
 
             <div class="form-group">
-                <button type="submit">Create Item</button>
+                <button onclick="createAlert()" type="submit">Create Item</button>
             </div>
         </form>
 		
@@ -87,4 +87,9 @@
     </div>
 
 </body>
+<script>
+	function createAlert (){
+		alert("item created");
+	}
+</script>
 </html>
