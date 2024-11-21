@@ -49,7 +49,7 @@ app.post('/login', async (req, res) => {
     const user = await users.findOne({ username: username });
     
     if (!user) {
-      return res.send('用户名无效');
+      return res.send('Invalid Username');
     }
 
     // 直接比较明文密码
@@ -65,12 +65,12 @@ app.post('/login', async (req, res) => {
 		return res.redirect('/adminHome');		
 	  }
     } else {
-      return res.send('密码错误');
+      return res.send('Wrong password');
     }
 
   } catch (err) {
-    console.error('登录时发生错误：', err);
-    res.status(500).send('登录时发生错误：' + err.message);
+    console.error('Error logging in：', err);
+    res.status(500).send('Error logging in：' + err.message);
   }
 });
 
@@ -108,214 +108,153 @@ app.get('/create', (req, res) => {
 
 // 处理创建用户的 POST 请求
 app.post('/users/create', async (req, res) => {
-  const {name, count, singlePrice} = req.body;
+    const { name, count, singlePrice } = req.body;
 
-  try {
-    // 创建新用户
-    const newItem = new items({
-      name: name,
-	  count: count,
-      singlePrice: singlePrice
-    });
+    try {
+        // 创建新配件
+        const newItem = new items({
+            name: name,
+            count: count,
+            singlePrice: singlePrice
+        });
 
-    // 保存到数据库
-    await newItem.save();
+        // 保存到数据库
+        await newItem.save();
 
-    // 重定向到用户创建成功页面
-    res.redirect('/crud');
-  } catch (err) {
-    console.error('Error creating user:', err);
-    res.status(500).send("创建用户时发生错误：" + err.message);
-  }
+        // 返回创建的配件信息作为 JSON 响应
+        res.status(201).json(newItem);
+    } catch (err) {
+        console.error('Error creating item:', err);
+        res.status(500).send("Error in creating item：" + err.message);
+    }
 });
 
-// Read 页面，仅已登录的用户可访问
+// Read 页面，仅已登录的用户可访问，显示所有 items，并处理搜索功能
 app.get('/read', async (req, res) => {
-  if (!req.session.userId) {
-    return res.redirect('/login');
-  }
-  
-  const nameText = ''; 
-  const countText = ''; 
-  const singlePriceText = ''; 
-  res.render('read', { 
-    name: nameText, 
-    count: countText, 
-    singlePrice: singlePriceText 
-	});
-});
+    // 检查用户是否登录
+    if (!req.session.userId) {
+        return res.redirect('/login');
+    }
 
-app.get('/user/read', async (req, res) => {
-	//console.log('search');
-
-    const { query } = req.query; // 從查詢字符串中獲取查詢參數
-	const searchText = req.query.searchBar;
-	
     try {
-        // 使用正則表達式進行不區分大小寫的搜索
-        const results = await items.findOne({ name: searchText });
-		if (!results) {
-		  return res.send('no this item');
-		}		
-		
-		console.log(req.query.searchBar);
-		console.log(results);
-        
-		res.render('read', { 
-			name: results.name, 
-			count: results.count, 
-			singlePrice: results.singlePrice 
-			});
-		
+        // 查询数据库中的所有 items
+        const itemsList = await items.find();
+
+        // 如果有查询参数，则按名称查询特定 item
+        const searchText = req.query.searchBar;
+        let selectedItem = null;
+
+        if (searchText) {
+            // 使用正则表达式进行不区分大小写的搜索
+            selectedItem = await items.findOne({ name: new RegExp(searchText, 'i') });
+            if (!selectedItem) {
+                // 如果没有找到相应的配件，传递提示信息到前端
+                return res.render('read', {
+                    items: itemsList,
+                    name: 'No such item found',
+                    count: '-',
+                    singlePrice: '-'
+                });
+            }
+        }
+
+        // 渲染 read.ejs 页面，传递 items 列表和选中的 item 信息（如果有的话）
+        res.render('read', {
+            items: itemsList,
+            name: selectedItem ? selectedItem.name : '',
+            count: selectedItem ? selectedItem.count : '',
+            singlePrice: selectedItem ? selectedItem.singlePrice : ''
+        });
+
     } catch (error) {
-        console.error(error); // 輸出錯誤信息
+        console.error('Error fetching items:', error);
         res.status(500).send('Server Error');
     }
 });
 
-app.get('/update', (req, res) => {
-  if (!req.session.userId) {
-    return res.redirect('/login');
-  }
-  
-  const searchBarText = '';
-  const nameText = ''; 
-  const countText = ''; 
-  const singlePriceText = ''; 
-  res.render('update', { 
-	searchBar: searchBarText,
-    name: nameText, 
-    count: countText, 
-    singlePrice: singlePriceText 
-	});
-});
+// 显示 update 页面并列出所有 items
+app.get('/update', async (req, res) => {
+    if (!req.session.userId) {
+        return res.redirect('/login');
+    }
 
-app.get('/user/update', async (req, res) => {
-	console.log('get');
-
-    const { query } = req.query; // 從查詢字符串中獲取查詢參數
-	const searchText = req.query.searchBar;
-	
     try {
-        // 使用正則表達式進行不區分大小寫的搜索
-        const results = await items.findOne({ name: searchText });
-		if (!results) {
-		  return res.send('no this item');
-		}		
-		
-		console.log(req.query.searchBar);
-		console.log(results);
-        
-		res.render('update', { 
-			searchBar: results.name,
-			name: results.name, 
-			count: results.count, 
-			singlePrice: results.singlePrice 
-			});
-		
+        // 查询所有 items
+        const itemsList = await items.find();
+
+        // 渲染页面，传递 items 列表和空的选中 item 信息
+        res.render('update', {
+            items: itemsList,
+            selectedItem: null // 初始情况下没有选中的 item
+        });
     } catch (error) {
-        console.error(error); // 輸出錯誤信息
+        console.error('Error fetching items:', error);
         res.status(500).send('Server Error');
     }
 });
 
-app.put('/user/update', async (req, res) => {
-	console.log('put');
-	
-	const { searchBar, count, price } = req.body;
-	console.log(searchBar);
+// 更新某个 item 的数据
+app.put('/user/update/:id', async (req, res) => {
+    const { id } = req.params;
+    const { name, count, singlePrice } = req.body;
 
     try {
-        // 假设你根据名称查找项目并更新
-        const updatedItem = await items.findOneAndUpdate(
-            { name: searchBar }, // 查找条件
-            { count: count, price: price }, // 更新内容
-            { new: true } // 返回更新后的文档
+        // 检查是否存在相同名称的其他项目
+        const existingItem = await items.findOne({ name: name, _id: { $ne: id } });
+        if (existingItem) {
+            return res.status(400).json({ message: 'Item with the same name already exists' });
+        }
+
+        const updatedItem = await items.findByIdAndUpdate(
+            id,
+            { name: name, count: parseInt(count), singlePrice: parseFloat(singlePrice) },
+            { new: true }
         );
 
         if (!updatedItem) {
-            return res.status(404).json({ message: '项目未找到' });
+            return res.status(404).json({ message: 'Item not found' });
         }
 
-        // 重定向到用户创建成功页面
-        res.redirect('/crud');
+        res.status(200).json({ message: 'Item updated successfully', updatedItem });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: '服务器错误' });
+        console.error('Error updating item:', error);
+        res.status(500).json({ message: 'Server Error' });
     }
 });
 
-app.get('/delete', (req, res) => {
-  if (!req.session.userId) {
-    return res.redirect('/login');
-  }
-  
-  const searchBarText = '';
-  const nameText = ''; 
-  const countText = ''; 
-  const singlePriceText = ''; 
-  res.render('delete', { 
-	searchBar: searchBarText,
-    name: nameText, 
-    count: countText, 
-    singlePrice: singlePriceText 
-	});
-});
+app.get('/delete', async (req, res) => {
+    if (!req.session.userId) {
+        return res.redirect('/login');
+    }
 
-app.get('/user/delete', async (req, res) => {
-	console.log('get');
-
-    const { query } = req.query; // 從查詢字符串中獲取查詢參數
-	const searchText = req.query.searchBar;
-	
     try {
-        // 使用正則表達式進行不區分大小寫的搜索
-        const results = await items.findOne({ name: searchText });
-		if (!results) {
-		  return res.send('no this item');
-		}		
-		
-		console.log(req.query.searchBar);
-		console.log(results);
-        
-		res.render('delete', { 
-			searchBar: results.name,
-			name: results.name, 
-			count: results.count, 
-			singlePrice: results.singlePrice 
-			});
-		
+        // 查询所有 items
+        const itemsList = await items.find();
+
+        // 渲染 delete 页面，传递 items 列表
+        res.render('delete', { items: itemsList });
     } catch (error) {
-        console.error(error); // 輸出錯誤信息
+        console.error('Error fetching items:', error);
         res.status(500).send('Server Error');
     }
 });
-
-app.delete('/user/delete', async (req, res) => {
-		
-	const { searchBar } = req.body;
-	console.log(searchBar);
+app.delete('/user/delete/:id', async (req, res) => {
+    const { id } = req.params;
 
     try {
-        // 假设你根据名称查找项目并更新
-		const deletedItem = await items.findOne({ name: searchBar });
-		console.log(deletedItem.name);
+        // 根据 ID 删除对应的 item
+        const deletedItem = await items.findByIdAndDelete(id);
 
         if (!deletedItem) {
-            return res.status(404).json({ message: '项目未找到' });
-        } else {
-			await items.findOneAndDelete({ name: deletedItem.name });
-			console.log('delete');
-		}
+            return res.status(404).json({ message: 'Item not found' });
+        }
 
-        // 重定向到用户创建成功页面
-        res.redirect('/crud');
+        res.status(200).json({ message: 'Item deleted successfully' });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: '服务器错误' });
+        console.error('Error deleting item:', error);
+        res.status(500).json({ message: 'Server Error' });
     }
 });
-
 // 处理登出请求
 app.get('/logout', (req, res) => {
   req.session.destroy(err => {
@@ -335,30 +274,30 @@ app.post('/curl/login', async (req, res) => {
 
   try {
     const user = await users.findOne({ username });
-    if (!user) return res.status(400).json({ message: '用户名无效' });
+    if (!user) return res.status(400).json({ message: 'invalid username' });
 
     if (password === user.password) {
       if (user.admin) {
         req.session.adminId = user._id;
-        return res.status(200).json({ message: 'Admin 登录成功' });
+        return res.status(200).json({ message: 'Admin login success' });
       } else {
         req.session.userId = user._id;
-        return res.status(200).json({ message: 'User 登录成功' });
+        return res.status(200).json({ message: 'User login success' });
       }
     } else {
-      return res.status(400).json({ message: '密码错误' });
+      return res.status(400).json({ message: 'wrong password' });
     }
   } catch (err) {
-    console.error('登录时发生错误：', err);
-    res.status(500).json({ message: '登录时发生错误' });
+    console.error('Error logging in：', err);
+    res.status(500).json({ message: 'Error logging in' });
   }
 });
 
 // 登出
 app.post('/curl/logout', (req, res) => {
   req.session.destroy(err => {
-    if (err) return res.status(500).json({ message: '登出时发生错误' });
-    res.status(200).json({ message: '成功登出' });
+    if (err) return res.status(500).json({ message: 'Error logging in' });
+    res.status(200).json({ message: 'logout success' });
   });
 });
 
@@ -367,7 +306,7 @@ function isLoggedIn(req, res, next) {
   if (req.session.userId || req.session.adminId) {
     next();
   } else {
-    res.status(401).json({ message: '请先登录' });
+    res.status(401).json({ message: 'please login first' });
   }
 }
 
@@ -382,8 +321,8 @@ app.post('/curl/items', isLoggedIn, async (req, res) => {
     await newItem.save();
     res.status(201).json(newItem); // 返回创建的项目
   } catch (err) {
-    console.error('创建项目时发生错误：', err);
-    res.status(500).json({ message: '创建项目时发生错误' });
+    console.error('error when create items：', err);
+    res.status(500).json({ message: 'error when create items' });
   }
 });
 
@@ -393,8 +332,8 @@ app.get('/curl/items', isLoggedIn, async (req, res) => {
     const allItems = await items.find();
     res.status(200).json(allItems);
   } catch (err) {
-    console.error('读取项目时发生错误：', err);
-    res.status(500).json({ message: '读取项目时发生错误' });
+    console.error('error when read items：', err);
+    res.status(500).json({ message: 'error when read items' });
   }
 });
 
@@ -402,12 +341,12 @@ app.get('/curl/items', isLoggedIn, async (req, res) => {
 app.get('/curl/items/name/:name', isLoggedIn, async (req, res) => {
   try {
     const item = await items.findOne({ name: req.params.name });
-    if (!item) return res.status(404).json({ message: '项目未找到' });
+    if (!item) return res.status(404).json({ message: 'no such project' });
 
     res.status(200).json(item);
   } catch (err) {
-    console.error('读取项目时发生错误：', err);
-    res.status(500).json({ message: '读取项目时发生错误' });
+    console.error('error when read items：', err);
+    res.status(500).json({ message: 'error when read items' });
   }
 });
 
@@ -426,8 +365,8 @@ app.put('/curl/items/name/:name', isLoggedIn, async (req, res) => {
 
     res.status(200).json(updatedItem);
   } catch (err) {
-    console.error('更新项目时发生错误：', err);
-    res.status(500).json({ message: '更新项目时发生错误' });
+    console.error('error when update items：', err);
+    res.status(500).json({ message: 'error when update items' });
   }
 });
 
@@ -435,12 +374,12 @@ app.put('/curl/items/name/:name', isLoggedIn, async (req, res) => {
 app.delete('/curl/items/name/:name', isLoggedIn, async (req, res) => {
   try {
     const deletedItem = await items.findOneAndDelete({ name: req.params.name });
-    if (!deletedItem) return res.status(404).json({ message: '项目未找到' });
+    if (!deletedItem) return res.status(404).json({ message: 'no such project' });
 
-    res.status(200).json({ message: '项目已删除', deletedItem });
+    res.status(200).json({ message: 'item deleted', deletedItem });
   } catch (err) {
-    console.error('删除项目时发生错误：', err);
-    res.status(500).json({ message: '删除项目时发生错误' });
+    console.error('An error occurred while deleting the project：', err);
+    res.status(500).json({ message: 'An error occurred while deleting the project' });
   }
 });
 
