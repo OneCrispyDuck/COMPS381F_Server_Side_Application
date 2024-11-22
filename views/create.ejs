@@ -14,6 +14,7 @@
             align-items: center;
             height: 100vh;
             background-color: #f4f4f4;
+            flex-direction: column;
         }
         .container {
             background-color: white;
@@ -22,6 +23,7 @@
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             max-width: 400px;
             width: 100%;
+            margin-bottom: 20px;
         }
         h1 {
             text-align: center;
@@ -53,43 +55,80 @@
         .form-group button:hover {
             background-color: #218838;
         }
+        .part-info {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #333;
+        }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>Create New Items</h1>
+<div class="container">
+    <h1>Create New Items</h1>
 
-        <!-- Form for creating a new user -->
-        <form action="/users/create" method="POST">
-            <div class="form-group">
-                <label for="name">Name:</label>
-                <input type="text" id="name" name="name" required>
-            </div>
-			
-			<div class="form-group">
-                <label for="count">Count:</label>
-                <input type="number" id="count" name="count" required>
-            </div>
+    <!-- Form for creating a new item -->
+    <form id="createForm">
+        <div class="form-group">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required>
+        </div>
 
-            <div class="form-group">
-                <label for="singlePrice">Single-Price:</label>
-                <input type="number" step="0.01" id="singlePrice" name="singlePrice" required>
-            </div>
+        <div class="form-group">
+            <label for="count">Count:</label>
+            <input type="number" id="count" name="count" required>
+        </div>
 
-            <div class="form-group">
-                <button onclick="createAlert()" type="submit">Create Item</button>
-            </div>
-        </form>
-		
-		
-		
+        <div class="form-group">
+            <label for="singlePrice">Single-Price:</label>
+            <input type="number" step="0.01" id="singlePrice" name="singlePrice" required>
+        </div>
+
+        <div class="form-group">
+            <button type="submit">Create Item</button>
+        </div>
+    </form>
+
+    <!-- Container to display the created part information -->
+    <div class="part-info" id="partInfo">
+        <!-- Created part information will be shown here -->
     </div>
+</div>
+
+<script>
+    document.getElementById('createForm').addEventListener('submit', async function(event) {
+        event.preventDefault(); // Prevent form from submitting the traditional way
+
+        // Get the input values
+        const name = document.getElementById('name').value;
+        const count = document.getElementById('count').value;
+        const singlePrice = document.getElementById('singlePrice').value;
+
+        // Send the data to the server using fetch
+        const response = await fetch('/users/create', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ name, count, singlePrice })
+        });
+
+        // If the server responds successfully, show the created item
+        if (response.ok) {
+            const createdItem = await response.json();
+
+            // Display the created item information on the page
+            document.getElementById('partInfo').innerHTML = `
+                    <strong>Created Part:</strong><br>
+                    Name: ${createdItem.name}<br>
+                    Count: ${createdItem.count}<br>
+                    Single Price: $${createdItem.singlePrice.toFixed(2)}
+                `;
+        } else {
+            document.getElementById('partInfo').innerHTML = 'Error creating item.';
+        }
+    });
+</script>
 
 </body>
-<script>
-	function createAlert (){
-		alert("item created");
-	}
-</script>
 </html>

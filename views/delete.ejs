@@ -11,7 +11,7 @@
             padding: 0;
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
             height: 100vh;
             background-color: #f4f4f4;
         }
@@ -20,42 +20,16 @@
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            max-width: 400px;
+            max-width: 600px;
             width: 100%;
+            margin-top: 20px;
         }
         h1 {
             text-align: center;
             margin-bottom: 20px;
         }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-        }
-        .form-group input {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-        .form-group button {
-            width: 100%;
-            padding: 10px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .form-group button:hover {
-            background-color: #0056b3;
-        }
         table {
             width: 100%;
-            margin-top: 20px;
             border-collapse: collapse;
         }
         table, th, td {
@@ -68,76 +42,73 @@
         th {
             background-color: #f2f2f2;
         }
+        .delete-button {
+            background-color: #ff4d4d;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .delete-button:hover {
+            background-color: #ff4d4d;
+        }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>查看项目</h1>
+<div class="container">
+    <h1>Delete Items</h1>
 
-        <!-- 查看项目表单 -->
-        <form id="updateForm" action="/user/delete" method="GET">
-			<div class="form-group">
-				<label for="searchBar">名称：</label>
-				<input type="text" id="searchBar" name="searchBar" value="<%= searchBar %>" placeholder="请输入名称" required>
-			</div>
+    <!-- Items Table -->
+    <table>
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Count</th>
+            <th>Unit Price</th>
+            <th>Action</th>
+        </tr>
+        </thead>
+        <tbody id="itemsTable">
+        <% items.forEach(function(item) { %>
+            <tr>
+                <td><%= item.name %></td>
+                <td><%= item.count %></td>
+                <td><%= item.singlePrice %></td>
+                <td>
+                    <button class="delete-button" onclick="deleteItem('<%= item._id %>')">Delete</button>
+                </td>
+            </tr>
+        <% }) %>
+        </tbody>
+    </table>
+</div>
 
-			<div class="form-group">
-				<button type="button" onclick="submitForm('GET')">搜索名称</button>
-			</div>
-			
-            <h2>查询结果</h2>
-            <table>
-            	<thead>
-                    <tr>
-                        <th>名称</th>
-                        <th>数量</th>
-                        <th>单价</th>
-                    </tr>
-                </thead>
-                <tbody>
-              		<tr>
-                        <td>
-                            <label type="lable" id="name" name="name" required>
-								<%= name %>
-							</label>
-                        </td>                           	
-                        <td>
-							<label type="lable" id="count" name="count" required>
-								<%= count %>
-							</label>                          
-                        </td>                            
-                        <td>
-							<label type="lable" id="singlePrice" name="singlePrice" required>
-								<%= singlePrice %>
-							</label>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-			<br>
-			<div class="form-group">
-				<button type="button" onclick="submitForm('POST')">刪除数据</button>
-			</div>
-        </form>
-        
-    </div>
+<script>
+    // 发起 DELETE 请求删除指定的 item
+    function deleteItem(id) {
+        if (!confirm('Are you sure you want to delete this item?')) {
+            return;
+        }
+
+        fetch(`/user/delete/${id}`, {
+            method: 'DELETE',
+        })
+            .then(response => {
+                if (response.ok) {
+                    alert('Item deleted successfully');
+                    location.reload(); // 删除成功后刷新页面
+                } else {
+                    alert('Error deleting item');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Error deleting item');
+            });
+    }
+</script>
 
 </body>
-<script>
-	function submitForm(method) {
-		const form = document.getElementById('updateForm');
-
-		if (method === 'GET') {
-			form.action = '/user/delete'; 
-			form.method = 'GET'; 
-		} else if (method === 'POST') {
-			form.action = '/user/delete?_method=DELETE'; 
-			form.method = 'POST';
-			alert("item deleted"); 
-		}
-
-		form.submit(); // Submit the form
-	}
-</script>
 </html>

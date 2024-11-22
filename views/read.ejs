@@ -11,113 +11,82 @@
             padding: 0;
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
             height: 100vh;
             background-color: #f4f4f4;
         }
         .container {
+            display: flex;
             background-color: white;
             padding: 20px;
             border-radius: 8px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            max-width: 400px;
-            width: 100%;
-        }
-        h1 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .form-group {
-            margin-bottom: 15px;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
-        }
-        .form-group input {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            box-sizing: border-box;
-        }
-        .form-group button {
-            width: 100%;
-            padding: 10px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .form-group button:hover {
-            background-color: #0056b3;
-        }
-        table {
+            max-width: 800px;
             width: 100%;
             margin-top: 20px;
-            border-collapse: collapse;
         }
-        table, th, td {
-            border: 1px solid #ccc;
+        .item-list {
+            width: 40%;
+            margin-right: 20px;
+            border-right: 1px solid #ccc;
         }
-        th, td {
+        .item-list ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        .item-list li {
             padding: 10px;
-            text-align: left;
+            cursor: pointer;
+            border-bottom: 1px solid #ccc;
+            transition: background-color 0.2s;
         }
-        th {
-            background-color: #f2f2f2;
+        .item-list li:hover {
+            background-color: #f0f0f0;
+        }
+        .item-details {
+            width: 60%;
+        }
+        .item-details h2 {
+            margin-top: 0;
+        }
+        .item-details span {
+            display: block;
+            margin-bottom: 10px;
         }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <h1>查看项目</h1>
-
-        <!-- 查看项目表单 -->
-        <form action="/user/read" method="GET">
-			<div class="form-group">
-                <label for="searchBar">名称：</label>
-                <input type="text" id="searchBar" name="searchBar" placeholder="请输入名称" required>
-            </div>
-
-            <div class="form-group">
-                <button type="submit">搜索名称</button>
-            </div>
-			
-            <h2>查询结果</h2>
-            <table>
-            	<thead>
-                    <tr>
-                        <th>名称</th>
-                        <th>数量</th>
-                        <th>单价</th>
-                    </tr>
-                </thead>
-                <tbody>
-              		<tr>
-                        <td>
-                            <label type="lable" id="name" name="name" required>
-								<%= name %>
-							</label>
-                        </td>                           	
-                        <td>
-                            <label type="lable" id="count" name="count" required>
-								<%= count %>
-							</label>
-                        </td>                            
-                        <td>
-                            <label type="lable" id="singlePrice" name="singlePrice" required>
-								<%= singlePrice %>
-							</label>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </form>
-        
+<div class="container">
+    <!-- 左侧：显示所有 items 名称 -->
+    <div class="item-list">
+        <h1>Items List</h1>
+        <ul id="itemsList">
+            <% items.forEach(function(item) { %>
+                <li onclick="showItemDetails('<%= item.name %>', <%= item.count %>, <%= item.singlePrice %>)">
+                    <%= item.name %>
+                </li>
+            <% }) %>
+        </ul>
     </div>
+
+    <!-- 右侧：显示点击后的 item 详情 -->
+    <div class="item-details">
+        <h2>Item Details</h2>
+        <span><strong>Name:</strong> <span id="detailName">Click an item to see details</span></span>
+        <span><strong>Count:</strong> <span id="detailCount">-</span></span>
+        <span><strong>Single Price:</strong> <span id="detailPrice">-</span></span>
+    </div>
+</div>
+
+<script>
+    // JavaScript 函数，用于显示点击的 item 的详情
+    function showItemDetails(name, count, singlePrice) {
+        document.getElementById('detailName').textContent = name;
+        document.getElementById('detailCount').textContent = count;
+        document.getElementById('detailPrice').textContent = '$' + singlePrice.toFixed(2);
+    }
+</script>
 
 </body>
 </html>

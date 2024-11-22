@@ -40,6 +40,11 @@
       font-size: 18px;
       color: #555;
     }
+    img {
+      max-width: 100%;
+      height: auto;
+      margin-top: 20px;
+    }
     @media (max-width: 600px) {
       a {
         display: block;
@@ -50,14 +55,17 @@
   </style>
 </head>
 <body>
-  <h1>CRUD Operations</h1>
-  <p>Select the operation you want to perform:</p>
-  <nav>
-    <a href="/create">Create</a>
-    <a href="/read">Read</a>
-    <a href="/update">Update</a>
-    <a href="/delete">Delete</a>
-    <a href="/logout">Logout</a>
-  </nav>
+<h1>Vehicle Parts Database</h1>
+<p>Select the operation you want to perform:</p>
+
+<!-- 添加图片 -->
+<img src="/images/car_parts.jpg" alt="Car Parts Diagram" width="50%" />
+<nav>
+  <a href="/create">Create</a>
+  <a href="/read">Read</a>
+  <a href="/update">Update</a>
+  <a href="/delete">Delete</a>
+  <a href="/logout">Logout</a>
+</nav>
 </body>
 </html>
