@@ -7,21 +7,14 @@ const methodOverride = require('method-override');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// MongoDB URI
 const uri = "mongodb+srv://Mike_Wang:Wang090701@cluster.k8uyh.mongodb.net/groupData?retryWrites=true&w=majority&appName=Cluster";
 
-// 设置视图引擎为 EJS
 app.set('view engine', 'ejs');
 
-// 中间件，用于解析请求体数据
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
-// 设置静态文件目录
 app.use(express.static('public'));
-
 app.use(methodOverride('_method'));
-
-// 配置 session
 app.use(session({
   secret: 'your_secret_key',
   resave: false,
@@ -35,13 +28,10 @@ const items = mongoose.model('items', itemSchema);
 const userSchema = require('./models/user');
 const users = mongoose.model('users', userSchema);
 
-// ========================== 修改部分：处理根路径 ==========================
-// 根路径处理，提供一个默认页面或重定向
 app.get('/', (req, res) => {
-  res.redirect('/login'); // 默认重定向到登录页面
+  res.redirect('/login');
 });
 
-// ========================== 登录与权限验证相关路由 ==========================
 app.get('/login', (req, res) => {
   res.render('login');
 });
@@ -72,7 +62,6 @@ app.post('/login', async (req, res) => {
   }
 });
 
-// ========================== 主页路由 ==========================
 app.get('/userHome', (req, res) => {
   if (!req.session.userId) {
     return res.redirect('/login');
@@ -87,7 +76,6 @@ app.get('/adminHome', (req, res) => {
   res.render('adminHome');
 });
 
-// ========================== CRUD 操作界面路由 ==========================
 app.get('/crud', (req, res) => {
   if (!req.session.userId) {
     return res.redirect('/login');
@@ -95,7 +83,6 @@ app.get('/crud', (req, res) => {
   res.render('crud');
 });
 
-// Create 页面
 app.get('/create', (req, res) => {
   if (!req.session.userId) {
     return res.redirect('/login');
@@ -116,7 +103,6 @@ app.post('/users/create', async (req, res) => {
   }
 });
 
-// Read 页面
 app.get('/read', async (req, res) => {
   if (!req.session.userId) {
     return res.redirect('/login');
@@ -151,7 +137,6 @@ app.get('/read', async (req, res) => {
   }
 });
 
-// Update 页面
 app.get('/update', async (req, res) => {
   if (!req.session.userId) {
     return res.redirect('/login');
@@ -166,7 +151,6 @@ app.get('/update', async (req, res) => {
   }
 });
 
-// 更新某个 item
 app.put('/user/update/:id', async (req, res) => {
   const { id } = req.params;
   const { name, count, singlePrice } = req.body;
@@ -194,7 +178,6 @@ app.put('/user/update/:id', async (req, res) => {
   }
 });
 
-// Delete 页面
 app.get('/delete', async (req, res) => {
   if (!req.session.userId) {
     return res.redirect('/login');
@@ -225,7 +208,6 @@ app.delete('/user/delete/:id', async (req, res) => {
   }
 });
 
-// 登出
 app.get('/logout', (req, res) => {
   req.session.destroy(err => {
     if (err) {
@@ -236,9 +218,112 @@ app.get('/logout', (req, res) => {
 });
 
 // ===============================================CURL===================================================
-// ... CURL 路由保持不变
+app.post('/curl/login', async (req, res) => {
+  const { username, password } = req.body;
 
-// ========================== 连接 MongoDB 并启动服务器 ==========================
+  try {
+    const user = await users.findOne({ username });
+    if (!user) return res.status(400).json({ message: 'invalid username' });
+
+    if (password === user.password) {
+      if (user.admin) {
+        req.session.adminId = user._id;
+        return res.status(200).json({ message: 'Admin login success' });
+      } else {
+        req.session.userId = user._id;
+        return res.status(200).json({ message: 'User login success' });
+      }
+    } else {
+      return res.status(400).json({ message: 'wrong password' });
+    }
+  } catch (err) {
+    console.error('Error logging in：', err);
+    res.status(500).json({ message: 'Error logging in' });
+  }
+});
+
+app.post('/curl/logout', (req, res) => {
+  req.session.destroy(err => {
+    if (err) return res.status(500).json({ message: 'Error logging in' });
+    res.status(200).json({ message: 'logout success' });
+  });
+});
+
+function isLoggedIn(req, res, next) {
+  if (req.session.userId || req.session.adminId) {
+    next();
+  } else {
+    res.status(401).json({ message: 'please login first' });
+  }
+}
+
+// CRUD
+app.post('/curl/items', isLoggedIn, async (req, res) => {
+  const { name, count, singlePrice } = req.body;
+
+  try {
+    const newItem = new items({ name, count, singlePrice });
+    await newItem.save();
+    res.status(201).json(newItem); 
+  } catch (err) {
+    console.error('error when create items：', err);
+    res.status(500).json({ message: 'error when create items' });
+  }
+});
+
+app.get('/curl/items', isLoggedIn, async (req, res) => {
+  try {
+    const allItems = await items.find();
+    res.status(200).json(allItems);
+  } catch (err) {
+    console.error('error when read items：', err);
+    res.status(500).json({ message: 'error when read items' });
+  }
+});
+
+app.get('/curl/items/name/:name', isLoggedIn, async (req, res) => {
+  try {
+    const item = await items.findOne({ name: req.params.name });
+    if (!item) return res.status(404).json({ message: 'no such project' });
+
+    res.status(200).json(item);
+  } catch (err) {
+    console.error('error when read items：', err);
+    res.status(500).json({ message: 'error when read items' });
+  }
+});
+
+app.put('/curl/items/name/:name', isLoggedIn, async (req, res) => {
+  const { count, singlePrice } = req.body;
+
+  try {
+    const updatedItem = await items.findOneAndUpdate(
+      { name: req.params.name },
+      { count, singlePrice },
+      { new: true }
+    );
+
+    if (!updatedItem) return res.status(404).json({ message: '项目未找到' });
+
+    res.status(200).json(updatedItem);
+  } catch (err) {
+    console.error('error when update items：', err);
+    res.status(500).json({ message: 'error when update items' });
+  }
+});
+
+app.delete('/curl/items/name/:name', isLoggedIn, async (req, res) => {
+  try {
+    const deletedItem = await items.findOneAndDelete({ name: req.params.name });
+    if (!deletedItem) return res.status(404).json({ message: 'no such project' });
+
+    res.status(200).json({ message: 'item deleted', deletedItem });
+  } catch (err) {
+    console.error('An error occurred while deleting the project：', err);
+    res.status(500).json({ message: 'An error occurred while deleting the project' });
+  }
+});
+
 mongoose.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => {
     app.listen(PORT, () => {
