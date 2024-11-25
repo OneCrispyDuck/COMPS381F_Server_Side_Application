@@ -1,106 +1,119 @@
-1. User Login (POST /login)
+# Project Name
 
-Upon successful login, the server will return a session cookie, which will be saved in the cookies.txt file for use in subsequent requests.
+## Group Info
+- **Group Number**: 41
+- **Students**: 
+1. GUTIERREZ JOSEPH JAMES 13018121
+2. WANG Ming Yang 13419973
+3. Lee Tung Chak 12696155
+4. Maria Dharshini 13126390
+5. Yuhao Fu 12987211
 
-//for UBUNTU//
-curl -X POST http://localhost:3000/curl/login \
--H "Content-Type: application/json" \
--d '{"username": "Mike", "password": "1234"}' \
--c cookies.txt
-//
-//for Win//
-curl -X POST http://localhost:3000/curl/login ^
--H "Content-Type: application/json" ^
--d '{"username": "Mike", "password": "1234"}' ^
--c cookies.txt
-//
-    -X POST: Specifies the HTTP method POST.
-    -H "Content-Type: application/json": Sets the header to indicate that the request body is in JSON format.
-    -d '{"username": "Mike", "password": "1234"}': The request body, containing the username and password for login.
-    -c cookies.txt: Saves the session cookie to cookies.txt to maintain the session across requests.
+## Project File Introduction
 
-2. Create a New Item (POST /items)
+### server.js
+This file serves as the main entry point for the application. It sets up an Express server, configures middleware, and defines routes for handling user authentication and CRUD operations. Key functionalities include:
+- User login and session management.
+- CRUD operations for managing items in a MongoDB database.
+- Route handling for rendering EJS views.
 
-To create a new item, the cookie from the login step must be used to authenticate the request.
+### package.json
+Lists the project's dependencies including:
+- `express`: Web framework for Node.js.
+- `express-session`: Middleware for managing sessions.
+- `body-parser`: Middleware for parsing request bodies.
+- `mongoose`: ODM for MongoDB.
+- `method-override`: Middleware for supporting HTTP verbs such as PUT and DELETE.
 
-//for UBUNTU//
-curl -X POST http://localhost:3000/curl/items \
--H "Content-Type: application/json" \
--d '{"name": "ItemA", "count": 10, "singlePrice": 100}' \
--b cookies.txt
-//for Win//
-curl -X POST http://localhost:3000/curl/items ^
--H "Content-Type: application/json" ^
--d '{"name": "ItemA", "count": 10, "singlePrice": 100}' ^
--b cookies.txt
-//
-    -b cookies.txt: Loads the session cookie from the cookies.txt file to maintain the session.
-    -d '{"name": "ItemA", "count": 10, "singlePrice": 100}': The request body, specifying the new item's name, count, and singlePrice.
+### public (folder)
+Contains static files such as:
+- CSS stylesheets
+- JavaScript files
+- Images
 
-3. Get All Items (GET /items)
+### views (folder)
+Includes EJS templates for rendering the UI:
+- `login.ejs`: Login page for user authentication.
+- `userHome.ejs`: Home page for regular users.
+- `adminHome.ejs`: Home page for admin users.
+- `crud.ejs`: Main CRUD operations page.
+- `create.ejs`: Form for creating new items.
+- `read.ejs`: Page for reading and displaying items.
+- `update.ejs`: Page for updating existing items.
+- `delete.ejs`: Page for deleting items.
 
-To retrieve all items, the cookie from the login must be passed to maintain the session.
-//for UBUNTU//
-curl -X GET http://localhost:3000/curl/items \
--b cookies.txt
-//for Win//
-curl -X GET http://localhost:3000/curl/items ^
--b cookies.txt
-//
-    -b cookies.txt: Loads the session cookie to ensure the request is made in an authenticated state.
+### models (folder)
+Contains Mongoose model files:
+- `item.js`: Schema definition for item data.
+- `user.js`: Schema definition for user data.
 
-4. Get Item by Name (GET /items/name/:name)
+## Cloud-based Server URL
+- https://sample-deploy-13018121-app-h7deevhyhwd8bmh0.eastus-01.azurewebsites.net/
 
-Retrieve a specific item by its name. Here, the item name is ItemA.
-//for UBUNTU//
-curl -X GET http://localhost:3000/curl/items/name/ItemA \
--b cookies.txt
-//for Win//
-curl -X GET http://localhost:3000/curl/items/name/ItemA ^
--b cookies.txt
-//
-    ItemA: This is the name of the item being queried.
-    -b cookies.txt: Uses the session cookie to authenticate the request.
+## Operation Guides
 
-5. Update an Item (PUT /items/name/:name)
+### Login/Logout Pages
+- **Valid Login Information**: 
+  - Admin users and regular users can log in using their credentials.
+- **Sign In Steps**: 
+  1. Navigate to the login page.
+  2. Enter username and password.
+  3. Click the "Login" button.
 
-To update an item by name (e.g., ItemA), use the PUT method and send the updated count and singlePrice values in the request body.
-//for UBUNTU//
-curl -X PUT http://localhost:3000/curl/items/name/ItemA \
--H "Content-Type: application/json" \
--d '{"count": 20, "singlePrice": 150}' \
--b cookies.txt
-//for Win//
-curl -X PUT http://localhost:3000/curl/items/name/ItemA ^
--H "Content-Type: application/json" ^
--d '{"count": 20, "singlePrice": 150}' ^
--b cookies.txt
-//
-    -X PUT: Specifies the HTTP method PUT for updating the resource.
-    -d '{"count": 20, "singlePrice": 150}': The request body containing the new count and singlePrice for the item.
+### CRUD Web Pages
+- **Create**: Navigate to the Create page to add new items.
+- **Read**: Access the Read page to view items.
+- **Update**: Go to the Update page to modify existing items.
+- **Delete**: Use the Delete page to remove items.
 
-6. Delete an Item (DELETE /items/name/:name)
+### RESTful CRUD Services
+- **Create Item**: 
+  - **POST** `/users/create`
+- **Read Items**: 
+  - **GET** `/read`
+- **Update Item**: 
+  - **PUT** `/user/update/:id`
+- **Delete Item**: 
+  - **DELETE** `/user/delete/:id`
 
-To delete an item by its name (e.g., ItemA), use the DELETE method.
-//for UBUNTU//
-curl -X DELETE http://localhost:3000/curl/items/name/ItemA \
--b cookies.txt
-//for Win//
-curl -X DELETE http://localhost:3000/curl/items/name/ItemA ^
--b cookies.txt
-//
-    -X DELETE: Specifies the HTTP method DELETE to remove the resource.
-    -b cookies.txt: Uses the session cookie to authenticate the request.
+### Testing with CURL
+Here are some example CURL commands for testing the API endpoints:
 
-7. User Logout (POST /logout)
+- **Login**:
 
-To log out the user and destroy the session, use the POST method. The stored cookie is required to identify the current session.
-//for UBUNTU//
-curl -X POST http://localhost:3000/curl/logout \
--b cookies.txt
-//for Win//
-curl -X POST http://localhost:3000/curl/logout ^
--b cookies.txt
-//
-    -X POST: Specifies the HTTP method POST for logging out.
-    -b cookies.txt: Loads the session cookie to identify the current user session and log them out.
+
+    curl -L -X POST https://sample-deploy-13018121-app-h7deevhyhwd8bmh0.eastus-01.azurewebsites.net/curl/login ^
+        -H "Content-Type: application/json" ^
+        -d "{\"username\": \"Mike\", \"password\": \"1234\"}" ^
+        -c cookies.txt
+
+- **Create Items**:
+
+
+    curl -L -X POST https://sample-deploy-13018121-app-h7deevhyhwd8bmh0.eastus-01.azurewebsites.net/curl/items ^
+    -H "Content-Type: application/json" ^
+    -d "{\"name\": \"ItemA\", \"count\": 10, \"singlePrice\": 100}" ^
+    -b cookies.txt
+
+- **Read Items**:
+    
+
+    curl -X GET https://sample-deploy-13018121-app-h7deevhyhwd8bmh0.eastus-01.azurewebsites.net/curl/items ^ 
+        -b cookies.txt
+
+- **Update Item**:
+      
+
+    curl -L -X PUT https://sample-deploy-13018121-app-h7deevhyhwd8bmh0.eastus-01.azurewebsites.net/curl/items/name/ItemA ^
+    -H "Content-Type: application/json" ^
+    -d "{\"count\": 20, \"singlePrice\": 150}" ^
+    -b cookies.txt
+
+- **Delete Item**:
+  
+
+    curl -L -X DELETE https://sample-deploy-13018121-app-h7deevhyhwd8bmh0.eastus-01.azurewebsites.net/curl/items/name/ItemA ^
+    -b cookies.txt
+
+## Conclusion
+This project is a simple CRUD application using Node.js, Express, and MongoDB, providing a user-friendly interface for managing items.
