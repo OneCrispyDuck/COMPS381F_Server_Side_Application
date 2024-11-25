@@ -3,12 +3,69 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Home</title>
+  <title>User Home</title>
+  <style>
+    /* 全局样式 */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to bottom right, #4facfe, #00f2fe);
+      color: #333;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    /* 容器样式 */
+    .home-container {
+      background-color: #fff;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      text-align: center;
+      width: 100%;
+      max-width: 400px;
+    }
+
+    /* 欢迎标题样式 */
+    .home-container h1 {
+      font-size: 1.8rem;
+      color: #333;
+      margin-bottom: 1rem;
+    }
+
+    /* 链接按钮样式 */
+    .home-container a {
+      display: inline-block;
+      margin: 0.5rem 0;
+      padding: 0.75rem 1.5rem;
+      font-size: 1rem;
+      text-decoration: none;
+      color: #fff;
+      background-color: #4facfe;
+      border-radius: 5px;
+      transition: background-color 0.3s;
+    }
+
+    .home-container a:hover {
+      background-color: #00aefd;
+    }
+
+    /* 分隔线 */
+    .divider {
+      margin: 1rem 0;
+      border-top: 1px solid #ccc;
+    }
+  </style>
 </head>
 <body>
+<div class="home-container">
   <h1>Welcome Mike, you are logged in!</h1>
   <a href="/crud">Go to CRUD Page</a>
-  <br>
+  <div class="divider"></div>
   <a href="/logout">Logout</a>
+</div>
 </body>
 </html>

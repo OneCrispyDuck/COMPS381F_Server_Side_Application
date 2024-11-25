@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Update Items</title>
     <style>
+        /* 全局样式 */
         body {
             font-family: Arial, sans-serif;
             margin: 0;
@@ -12,71 +13,141 @@
             display: flex;
             justify-content: center;
             align-items: flex-start;
-            height: 100vh;
-            background-color: #f4f4f4;
+            min-height: 100vh;
+            background: linear-gradient(to bottom right, #4facfe, #00f2fe);
+            color: #333;
         }
+
+        /* 主容器样式 */
         .container {
             display: flex;
-            background-color: white;
+            background-color: #fff;
             padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            max-width: 800px;
-            width: 100%;
-            margin-top: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+            max-width: 900px;
+            width: 90%;
+            margin-top: 30px;
         }
+
+        /* 左侧列表样式 */
         .item-list {
             width: 40%;
             margin-right: 20px;
-            border-right: 1px solid #ccc;
+            border-right: 2px solid #e0e0e0;
+            padding-right: 20px;
         }
+
+        .item-list h1 {
+            font-size: 1.5rem;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #007BFF;
+        }
+
         .item-list ul {
             list-style-type: none;
             padding: 0;
+            margin: 0;
         }
+
         .item-list li {
-            padding: 10px;
+            padding: 12px 15px;
             cursor: pointer;
-            border-bottom: 1px solid #ccc;
-            transition: background-color 0.2s;
+            border-bottom: 1px solid #e0e0e0;
+            transition: background-color 0.3s ease, transform 0.2s;
+            font-size: 1rem;
+            border-radius: 8px;
         }
+
         .item-list li:hover {
-            background-color: #f0f0f0;
+            background-color: #f0f8ff;
+            color: #007BFF;
+            transform: translateX(5px);
         }
+
+        /* 右侧详情样式 */
         .item-details {
             width: 60%;
+            padding-left: 20px;
         }
+
         .item-details h2 {
-            margin-top: 0;
+            font-size: 1.8rem;
+            color: #007BFF;
+            margin-bottom: 20px;
+            text-align: center;
         }
-        .item-details span {
-            display: block;
-            margin-bottom: 10px;
-        }
+
         .form-group {
             margin-bottom: 15px;
         }
+
         .form-group label {
             display: block;
             margin-bottom: 5px;
+            font-weight: bold;
+            color: #555;
         }
+
         .form-group input {
             width: 100%;
-            padding: 8px;
+            padding: 10px;
             border: 1px solid #ccc;
-            border-radius: 4px;
+            border-radius: 5px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
         }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #007BFF;
+        }
+
         .form-group button {
             width: 100%;
-            padding: 10px;
-            background-color: #007bff;
+            padding: 12px;
+            background-color: #007BFF;
             color: white;
+            font-size: 1rem;
+            font-weight: bold;
             border: none;
-            border-radius: 4px;
+            border-radius: 5px;
             cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
         }
+
         .form-group button:hover {
             background-color: #0056b3;
+            transform: translateY(-2px);
+        }
+
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .item-list {
+                width: 100%;
+                margin-right: 0;
+                border-right: none;
+                padding-right: 0;
+                border-bottom: 2px solid #e0e0e0;
+                padding-bottom: 20px;
+            }
+
+            .item-details {
+                width: 100%;
+                padding-left: 0;
+                margin-top: 20px;
+            }
+
+            .item-list h1, .item-details h2 {
+                font-size: 1.4rem;
+            }
         }
     </style>
 </head>
@@ -101,15 +172,15 @@
         <form id="updateForm">
             <div class="form-group">
                 <label for="name">Name:</label>
-                <input type="text" id="name" name="name" >
+                <input type="text" id="name" name="name" placeholder="Enter item name">
             </div>
             <div class="form-group">
                 <label for="count">Count:</label>
-                <input type="number" id="count" name="count" required min="1" max="99999">
+                <input type="number" id="count" name="count" placeholder="Enter item count" required min="1" max="99999">
             </div>
             <div class="form-group">
                 <label for="singlePrice">Unit Price:</label>
-                <input type="number" id="singlePrice" name="singlePrice" required min="0" step="0.01">
+                <input type="number" id="singlePrice" name="singlePrice" placeholder="Enter item price" required min="0" step="0.01">
             </div>
             <div class="form-group">
                 <button type="button" onclick="submitForm()">Update Item</button>
@@ -150,7 +221,7 @@
             .then(response => {
                 if (response.ok) {
                     alert('Item updated successfully');
-                    location.reload(); // 刷新页面更新数据
+                    location.reload(); // 刷新页面以显示更新后的数据
                 } else {
                     response.json().then(data => {
                         alert(data.message || 'Error updating item');

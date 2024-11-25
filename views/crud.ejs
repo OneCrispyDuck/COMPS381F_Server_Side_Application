@@ -3,69 +3,144 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CRUD Page</title>
+  <title>Showcase Audi</title>
   <style>
+    /* 全局样式 */
     body {
-      font-family: Arial, sans-serif;
+      font-family: 'Arial', sans-serif;
       margin: 0;
       padding: 0;
       display: flex;
-      flex-direction: column;
-      align-items: center;
+      height: 100vh; /* 页面高度占满屏幕 */
+      background: linear-gradient(135deg, #141e30, #243b55); /* 深色渐变背景 */
+      color: #fff;
+    }
+
+    /* 左侧图片区域 */
+    .image-section {
+      flex: 1; /* 占据一半屏幕宽度 */
+      display: flex;
       justify-content: center;
-      height: 100vh;
-      background-color: #f4f4f4;
+      align-items: center;
+      overflow: hidden; /* 确保图片不会溢出 */
+      background: #000; /* 背景黑色以突出图片 */
     }
+
+    .image-section img {
+      width: 100%; /* 图片宽度占满容器 */
+      height: 100%; /* 图片高度占满容器 */
+      object-fit: cover; /* 保持图片比例裁剪填充容器 */
+      transition: transform 0.5s ease-in-out;
+    }
+
+    .image-section img:hover {
+      transform: scale(1.1); /* 鼠标悬停时放大图片 */
+    }
+
+    /* 右侧内容区域 */
+    .content-section {
+      flex: 1; /* 占据一半屏幕宽度 */
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 40px;
+      text-align: center;
+    }
+
     h1 {
-      color: #333;
+      font-size: 3rem;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
     }
+
+    p {
+      font-size: 1.2rem;
+      margin-bottom: 40px;
+      color: #aaa;
+    }
+
+    /* 按钮样式 */
     nav {
-      margin-top: 20px;
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap; /* 如果空间不足，按钮会换行 */
     }
+
     a {
       text-decoration: none;
-      color: #007BFF;
-      background-color: #f0f0f0;
-      padding: 10px 20px;
-      margin: 5px;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      transition: background-color 0.2s, color 0.2s;
+      font-size: 1rem;
+      font-weight: bold;
+      color: #fff;
+      background: linear-gradient(135deg, #1e90ff, #00bfff); /* 按钮渐变背景 */
+      padding: 12px 25px;
+      border-radius: 25px;
+      box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+      transition: all 0.3s ease-in-out;
     }
+
     a:hover {
-      background-color: #007BFF;
-      color: white;
+      background: linear-gradient(135deg, #00bfff, #1e90ff); /* 悬停时渐变反转 */
+      transform: translateY(-5px); /* 悬停时按钮上移 */
+      box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.5);
     }
-    p {
-      font-size: 18px;
-      color: #555;
+
+    /* 响应式设计 */
+    @media (max-width: 768px) {
+      body {
+        flex-direction: column; /* 小屏幕下改为上下布局 */
+      }
+
+      .image-section {
+        height: 50vh; /* 图片区域高度改为屏幕一半 */
+      }
+
+      .content-section {
+        height: 50vh; /* 内容区域高度改为屏幕一半 */
+      }
+
+      h1 {
+        font-size: 2.5rem;
+      }
+
+      p {
+        font-size: 1rem;
+      }
     }
-    img {
-      max-width: 100%;
-      height: auto;
-      margin-top: 20px;
-    }
-    @media (max-width: 600px) {
-      a {
-        display: block;
-        margin: 10px 0;
-        text-align: center;
+
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 2rem;
+      }
+
+      p {
+        font-size: 0.9rem;
+      }
+
+      nav a {
+        font-size: 0.9rem;
+        padding: 10px 20px;
       }
     }
   </style>
 </head>
 <body>
-<h1>Vehicle Parts Database</h1>
-<p>Select the operation you want to perform:</p>
+<!-- 左侧图片区域 -->
+<div class="image-section">
+  <img src="/images/sucar.png" alt="Audi Car" />
+</div>
 
-<!-- 添加图片 -->
-<img src="/images/car_parts.jpg" alt="Car Parts Diagram" width="50%" />
-<nav>
-  <a href="/create">Create</a>
-  <a href="/read">Read</a>
-  <a href="/update">Update</a>
-  <a href="/delete">Delete</a>
-  <a href="/logout">Logout</a>
-</nav>
+<!-- 右侧内容区域 -->
+<div class="content-section">
+  <h1>Welcome to Audi Online dealers</h1>
+  <p>Upload Audi dealership information here.</p>
+  <nav>
+    <a href="/create">Create</a>
+    <a href="/read">Read</a>
+    <a href="/update">Update</a>
+    <a href="/delete">Delete</a>
+    <a href="/logout">Logout</a>
+  </nav>
+</div>
 </body>
 </html>

@@ -4,17 +4,134 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Login</title>
+  <style>
+    /* 全局样式 */
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to bottom right, #4facfe, #00f2fe);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    /* 登录容器 */
+    .login-container {
+      background-color: #fff;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    /* 标题 */
+    .login-container h1 {
+      margin: 0 0 1rem;
+      font-size: 2rem;
+      color: #333;
+      text-align: center;
+    }
+
+    /* 输入框样式 */
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.9rem;
+      color: #666;
+      margin-bottom: 0.5rem;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 0.75rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+
+    .form-group input:focus {
+      border-color: #4facfe;
+    }
+
+    /* 按钮样式 */
+    .form-group button {
+      width: 100%;
+      padding: 0.75rem;
+      font-size: 1rem;
+      color: #fff;
+      background-color: #4facfe;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .form-group button:hover {
+      background-color: #00aefd;
+    }
+
+    /* 链接样式 */
+    .form-footer {
+      text-align: center;
+      margin-top: 1rem;
+    }
+
+    .form-footer a {
+      text-decoration: none;
+      color: #4facfe;
+      font-size: 0.9rem;
+    }
+
+    .form-footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* 响应式调整 */
+    @media (max-width: 480px) {
+      .login-container {
+        padding: 1.5rem;
+      }
+
+      .login-container h1 {
+        font-size: 1.8rem;
+      }
+    }
+  </style>
 </head>
 <body>
+<div class="login-container">
   <h1>Login</h1>
   <form action="/login" method="POST">
-    <label for="username">Username:</label>
-    <input type="text" id="username" name="username" required>
-    <br>
-    <label for="password">Password:</label>
-    <input type="password" id="password" name="password" required>
-    <br>
-    <button type="submit">Login</button>
+    <!-- 用户名字段 -->
+    <div class="form-group">
+      <label for="username">Username</label>
+      <input type="text" id="username" name="username" placeholder="Enter your username" required>
+    </div>
+
+    <!-- 密码字段 -->
+    <div class="form-group">
+      <label for="password">Password</label>
+      <input type="password" id="password" name="password" placeholder="Enter your password" required>
+    </div>
+
+    <!-- 登录按钮 -->
+    <div class="form-group">
+      <button type="submit">Login</button>
+    </div>
   </form>
+
+  <!-- 底部链接 -->
+  <div class="form-footer">
+    <a href="/register">Don't have an account? Register</a>
+  </div>
+</div>
 </body>
 </html>
