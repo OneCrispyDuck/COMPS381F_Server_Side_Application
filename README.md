@@ -81,11 +81,11 @@ Here are some example CURL commands for testing the API endpoints:
 
 - **Login**:
 
-    curl -L -X POST https://sample-deploy-13018121-app-h7deevhyhwd8bmh0.eastus-01.azurewebsites.net/curl/login -H "Content-Type: application/json" -d "{ \\"username\": \"Mike\", \"password\": \"1234\"}" -c cookies.txt
+    curl -L -X POST https://sample-deploy-13018121-app-h7deevhyhwd8bmh0.eastus-01.azurewebsites.net/curl/login -H "Content-Type: application/json" -d "{ \\"username\\": \\"Mike\\", \\"password\\": \\"1234\\"}" -c cookies.txt
 
 - **Create Items**:
 
-    curl -L -X POST https://sample-deploy-13018121-app-h7deevhyhwd8bmh0.eastus-01.azurewebsites.net/curl/items -H "Content-Type: application/json" -d "{\"name\": \"ItemA\", \"count\": 10, \"singlePrice\": 100}" -b cookies.txt
+    curl -L -X POST https://sample-deploy-13018121-app-h7deevhyhwd8bmh0.eastus-01.azurewebsites.net/curl/items -H "Content-Type: application/json" -d "{\\"name\\": \\"ItemA\\", \\"count\\": 10, \\"singlePrice\\": 100}" -b cookies.txt
 
 - **Read Items**:
 
@@ -93,7 +93,7 @@ Here are some example CURL commands for testing the API endpoints:
 
 - **Update Item**:
 
-    curl -L -X PUT https://sample-deploy-13018121-app-h7deevhyhwd8bmh0.eastus-01.azurewebsites.net/curl/items/name/ItemA -H "Content-Type: application/json" -d "{\"count\": 20, \"singlePrice\": 150}" -b cookies.txt
+    curl -L -X PUT https://sample-deploy-13018121-app-h7deevhyhwd8bmh0.eastus-01.azurewebsites.net/curl/items/name/ItemA -H "Content-Type: application/json" -d "{\\"count\\": 20, \\"singlePrice\\": 150}" -b cookies.txt
 
 - **Delete Item**:
   
