@@ -257,7 +257,6 @@ function isLoggedIn(req, res, next) {
   }
 }
 
-// CRUD
 app.post('/curl/items', isLoggedIn, async (req, res) => {
   const { name, count, singlePrice } = req.body;
 
