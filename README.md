@@ -81,6 +81,8 @@ Here are some example CURL commands for testing the API endpoints:
 
 - **Login**:
 
+https://sample-deploy-13018121-app-h7deevhyhwd8bmh0.eastus-01.azurewebsites.net/login
+
     curl -L -X POST https://sample-deploy-13018121-app-h7deevhyhwd8bmh0.eastus-01.azurewebsites.net/curl/login -H "Content-Type: application/json" -d "{ \\"username\\": \\"Mike\\", \\"password\\": \\"1234\\"}" -c cookies.txt
 
 - **Create Items**:
